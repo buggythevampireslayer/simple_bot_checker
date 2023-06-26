@@ -126,35 +126,34 @@ vector<player> get_ingame_playerlist(string path)
 
 int main()
 {
-    // read config file to get TF2 install path (and color options)
+    // read config file to get TF2 install path
     std::cout << "Reading config" << std::endl;
     std::ifstream readconfig("config.cfg");
     string path, bgoption, txtoption;
-    
     getline(readconfig, path);
+    path += "\\tf\\console.log";
+
     getline(readconfig, bgoption);
     getline(readconfig, txtoption);
-    path += "\\tf\\console.log";
     readconfig.close();
     std::cout << "Done." << std::endl << std::endl;
+
 
     // set console color here
     int color_option; // bruh
     try {
         color_option = get_col_id(bgoption.substr(3, bgoption.length() - 3)) * 16 + get_col_id(txtoption.substr(5, txtoption.length() - 5));
     } catch (const std::exception &err) {
-        std::cerr << err.what();
-        color_option = 0;
+        color_option = 15;
     }
     if (color_option == 0) color_option = 15;
     set_color(color_option);
-    
+
     // read cheater_list.txt to get current cheaters
     std::cout << "Parsing cheater list" << std::endl;
     vector<cheater> cheater_list = get_cheater_list("cheater_list.txt");
     std::cout << "Done." << std::endl << std::endl;
-
-
+    
     // Start loop 
     std::cout << "Press enter to begin." << std::endl;
     system("pause");
@@ -175,7 +174,7 @@ int main()
             for (cheater c : cheater_list){
                 if (c.id3 == p.id3){
                     string tag_name = (c.tag == 'C') ? "Cheater   " : ((c.tag == 'S') ? "Suspicious" : ((c.tag == 'W') ? "Watched   " : "Innocent  "));
-                    std::cout << tag_name << ": " << p.ign << " " << c.id3 << std::endl;
+                    std::cout << tag_name << ": " << p.ign << " " << c.tag << std::endl;
                 }
             }
         }
@@ -186,6 +185,6 @@ int main()
         clr_file.open(path, std::ofstream::out | std::ofstream::trunc);
         clr_file.close();
         
-        Sleep(1000); // Optional to make this shorter or longer, at 3000ms it likely wont ever use more than 0.1% cpu
+        Sleep(3000); // Optional to make this shorter or longer, at 3000ms it likely wont ever use more than 0.1% cpu
     }
 }
