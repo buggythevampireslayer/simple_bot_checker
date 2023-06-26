@@ -6,5 +6,7 @@
 5. Otherwise, just press that key and check the console whenever you want to check for cheaters in your game.
 
 ** NOTES ** 
+
 color options for all you goofy gamers
+
 black, blue, green, teal, darkred, darkpink, olive, lightgray, darkgray, purple, lime, cyan, red, pink, yellow, white"# simple_bot_checker" 
