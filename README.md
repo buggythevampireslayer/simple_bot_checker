@@ -9,4 +9,4 @@
 
 color options for all you goofy gamers
 
-black, blue, green, teal, darkred, darkpink, olive, lightgray, darkgray, purple, lime, cyan, red, pink, yellow, white"# simple_bot_checker" 
+black, blue, green, teal, darkred, darkpink, olive, lightgray, darkgray, purple, lime, cyan, red, pink, yellow, white
