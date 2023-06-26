@@ -175,7 +175,7 @@ int main()
             for (cheater c : cheater_list){
                 if (c.id3 == p.id3){
                     string tag_name = (c.tag == 'C') ? "Cheater   " : ((c.tag == 'S') ? "Suspicious" : ((c.tag == 'W') ? "Watched   " : "Innocent  "));
-                    std::cout << tag_name << ": " << p.ign << " " << c.tag << std::endl;
+                    std::cout << tag_name << ": " << p.ign << " " << c.id3 << std::endl;
                 }
             }
         }
