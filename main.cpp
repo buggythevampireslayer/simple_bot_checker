@@ -153,7 +153,7 @@ int main()
     std::cout << "Parsing cheater list" << std::endl;
     vector<cheater> cheater_list = get_cheater_list("cheater_list.txt");
     std::cout << "Done." << std::endl << std::endl;
-    
+
     // Start loop 
     std::cout << "Press enter to begin." << std::endl;
     system("pause");
@@ -185,6 +185,6 @@ int main()
         clr_file.open(path, std::ofstream::out | std::ofstream::trunc);
         clr_file.close();
         
-        Sleep(3000); // Optional to make this shorter or longer, at 3000ms it likely wont ever use more than 0.1% cpu
+        Sleep(1000); // Optional to make this shorter or longer, at 1000ms it likely wont ever use more than 1% CPU
     }
 }
