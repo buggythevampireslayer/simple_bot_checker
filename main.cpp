@@ -126,18 +126,17 @@ vector<player> get_ingame_playerlist(string path)
 
 int main()
 {
-    // read config file to get TF2 install path
+    // read config file to get TF2 install path (and color options)
     std::cout << "Reading config" << std::endl;
     std::ifstream readconfig("config.cfg");
     string path, bgoption, txtoption;
+    
     getline(readconfig, path);
-    path += "\\tf\\console.log";
-
     getline(readconfig, bgoption);
     getline(readconfig, txtoption);
+    path += "\\tf\\console.log";
     readconfig.close();
     std::cout << "Done." << std::endl << std::endl;
-
 
     // set console color here
     int color_option; // bruh
@@ -149,6 +148,7 @@ int main()
     }
     if (color_option == 0) color_option = 15;
     set_color(color_option);
+    
     // read cheater_list.txt to get current cheaters
     std::cout << "Parsing cheater list" << std::endl;
     vector<cheater> cheater_list = get_cheater_list("cheater_list.txt");
@@ -186,6 +186,6 @@ int main()
         clr_file.open(path, std::ofstream::out | std::ofstream::trunc);
         clr_file.close();
         
-        Sleep(3000); // Optional to make this shorter or longer, at 3000ms it likely wont ever use more than 0.1% cpu
+        Sleep(1000); // Optional to make this shorter or longer, at 3000ms it likely wont ever use more than 0.1% cpu
     }
 }
