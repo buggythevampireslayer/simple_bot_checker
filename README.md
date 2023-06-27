@@ -11,3 +11,5 @@ black, blue, green, teal, darkred, darkpink, olive, lightgray, darkgray, purple,
 Wont work on linux or mac systems sorry.
 
 All rights reserved ®
+
+Report bugs to me on discord @birdkiller#5802

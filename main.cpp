@@ -3,16 +3,14 @@
 #include <iostream>
 #include <fstream>
 #include <Windows.h>
+#include <algorithm>
+#include <iomanip>
 
 using std::string, std::vector;
 
 struct cheater { string id3; char tag; };
-struct player { string ign; string id3; char tag; };
+struct player { int id; string ign; string id3; };
 
-void handle_player()
-{
-
-}
 
 HWND get_windowhandle()
 {
@@ -96,7 +94,7 @@ vector<cheater> get_cheater_list(string path)
 
 player handle_line(string line)
 {
-    int id3_s = 0, id3_e = 0, ign_s = 10, ign_e = 0;
+    int id3_s = 0, id3_e = 0, ign_s = 10, ign_e = 0, id_s = 0, id_e = 0;
 
     for (int i = 7; i < 45; i++){
         if (line[i] == '"')
@@ -107,12 +105,23 @@ player handle_line(string line)
         if (line[i] == '[')
             id3_s = i;
         else if (line[i] == ']')
-            id3_e = i;
+            id3_e = i + 1;
+    }
+
+    for (int i = 1; i < 10; i++){
+        if (line[i] != ' ' && id_s == 0)
+            id_s = i;
+        
+        else if (line[i] == ' ' && id_s != 0)
+            id_e = i;
     }
     // get id3 and ign
     player p;
-    p.id3 = line.substr(id3_s, id3_e - id3_s + 1);
+    p.id3 = line.substr(id3_s, id3_e - id3_s);
     p.ign = line.substr(ign_s, ign_e - ign_s);
+    int x;
+    sscanf(line.substr(id_s, id_e - id_s).c_str(), "%d", &x);
+    p.id = x;
     return p;
 }
 
@@ -142,7 +151,6 @@ vector<player> get_ingame_playerlist(string path)
     readlogfile.close();
     return pv;
 }
-
 
 int main()
 {
@@ -195,25 +203,32 @@ int main()
     clr_file.close();
 
     // wait for player input to start
+    std::cout << std::endl;
+    std::cout << "NOTE: Wait for home page to fully load before continuing" << std::endl;
     system("pause");
 
     while (true)
     {
         SendMessageA(h_pWindow, WM_COPYDATA, 0, (LPARAM)&data);
         Sleep(200);
-        system("cls");
+        
         temp_list = get_ingame_playerlist(path);
-        if (temp_list.size() > 1)
+        if (temp_list.size() > 1){
             player_list = temp_list;
-            
+            sort(player_list.begin(), player_list.end(), [](const player &lv, const player &rv)
+                 { return lv.id < rv.id; });
+        }
+
+        system("cls");
         std::cout << "Current list of players in game:" << std::endl << std::endl;
-        for (player p : player_list)
+
+        for (auto p = player_list.begin(); p != player_list.end(); p++)
         {
             string t;
             cheater match;
-            for (cheater c : cheater_list){
-                if (c.id3 == p.id3){
-                    match = c;
+            for (auto c = cheater_list.begin(); c != cheater_list.end(); c++){
+                if (c->id3 == p->id3){
+                    match = *c;
                     break;
                 }
             }
@@ -224,11 +239,18 @@ int main()
                     "Innocent  ";
             }
             else {
-                t = "Unknown   ";
+                t = "          ";
+            }
+            string ign_padding = "";
+            string id3_padding = "";
+            for (int i = 0; i < (18 - p->id3.length()); i++){
+                id3_padding += " ";
+            }
+            for (int i = 0; i < (34 - p->ign.length()); i++){
+                ign_padding += " ";
             }
             // print player info to console
-            
-            std::cout << t << " : " << p.ign << " - " << p.id3 << std::endl;
+            std::cout << t << " :   " << p->ign << ign_padding << " - " << p->id3 << id3_padding << " - " << p->id << std::endl;
         }
 
         // clear console log file, sleep
@@ -237,7 +259,7 @@ int main()
         clr_file.open(path, std::ofstream::out | std::ofstream::trunc);
         clr_file.close();
 
-        // Changes this from 1000 to 2800 since it will be running status on its own now and it's unnecessary cpu usage
-        Sleep(2800);
+        // Changes this from 1000 to 4800 since it will be running status on its own now and it's unnecessary cpu usage
+        Sleep(4800);
     }
 }
