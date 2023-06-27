@@ -174,9 +174,7 @@ int main()
     vector<cheater> cheater_list = get_cheater_list("cheater_list.txt");
     std::cout << "Done." << std::endl << std::endl;
 
-    // Start loop 
-    std::cout << "Press enter to begin." << std::endl;
-    system("pause");
+    // vector variables
     vector<player> player_list;
     vector<player> temp_list;
 
@@ -191,10 +189,18 @@ int main()
     data.dwData = 0;
     data.lpData = (void *)statuscmd;
 
+    // truncate file before opening so it doesn't drop a whole bunch of players on startup
+    std::ofstream clr_file;
+    clr_file.open(path, std::ofstream::out | std::ofstream::trunc);
+    clr_file.close();
+
+    // wait for player input to start
+    system("pause");
+
     while (true)
     {
         SendMessageA(h_pWindow, WM_COPYDATA, 0, (LPARAM)&data);
-        Sleep(100);
+        Sleep(200);
         system("cls");
         temp_list = get_ingame_playerlist(path);
         if (temp_list.size() > 1)
@@ -230,7 +236,8 @@ int main()
         std::ofstream clr_file;
         clr_file.open(path, std::ofstream::out | std::ofstream::trunc);
         clr_file.close();
-        
-        Sleep(1000); // Optional to make this shorter or longer, at 1000ms it likely wont ever use more than 1% CPU
+
+        // Changes this from 1000 to 2800 since it will be running status on its own now and it's unnecessary cpu usage
+        Sleep(2800);
     }
 }

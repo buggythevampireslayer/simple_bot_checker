@@ -7,3 +7,7 @@
 ** NOTES ** 
 color options for all you goofy gamers
 black, blue, green, teal, darkred, darkpink, olive, lightgray, darkgray, purple, lime, cyan, red, pink, yellow, white
+
+Wont work on linux or mac systems sorry.
+
+All rights reserved ®
