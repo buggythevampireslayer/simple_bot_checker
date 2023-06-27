@@ -203,7 +203,7 @@ int main()
         std::cout << "Current list of players in game:" << std::endl << std::endl;
         for (player p : player_list)
         {
-            char* t;
+            string t;
             cheater match;
             for (cheater c : cheater_list){
                 if (c.id3 == p.id3){
