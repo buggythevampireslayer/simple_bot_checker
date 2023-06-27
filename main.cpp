@@ -9,6 +9,26 @@ using std::string, std::vector;
 struct cheater { string id3; char tag; };
 struct player { string ign; string id3; char tag; };
 
+void handle_player()
+{
+
+}
+
+HWND get_windowhandle()
+{
+    HWND h_pWindow = nullptr;
+    std::cout << "Waiting for TF2 process..." << std::endl;
+    while (h_pWindow == nullptr)
+    {
+        h_pWindow = FindWindowA("Valve001", 0);
+        if (h_pWindow == nullptr)
+        {
+            Sleep(200); // prevent throttling
+        }
+    }
+    std::cout << "Found TF2 process." << std::endl;
+    return h_pWindow;
+}
 
 void set_color(int option){
     HANDLE color;
@@ -96,7 +116,6 @@ player handle_line(string line)
     return p;
 }
 
-// read log file
 vector<player> get_ingame_playerlist(string path)
 {
     std::ifstream readlogfile(path);
@@ -124,10 +143,11 @@ vector<player> get_ingame_playerlist(string path)
     return pv;
 }
 
+
 int main()
 {
     // read config file to get TF2 install path
-    std::cout << "Reading config" << std::endl;
+    std::cout << "Reading config..." << std::endl;
     std::ifstream readconfig("config.cfg");
     string path, bgoption, txtoption;
     getline(readconfig, path);
@@ -150,7 +170,7 @@ int main()
     set_color(color_option);
 
     // read cheater_list.txt to get current cheaters
-    std::cout << "Parsing cheater list" << std::endl;
+    std::cout << "Parsing cheater list..." << std::endl;
     vector<cheater> cheater_list = get_cheater_list("cheater_list.txt");
     std::cout << "Done." << std::endl << std::endl;
 
@@ -159,24 +179,50 @@ int main()
     system("pause");
     vector<player> player_list;
     vector<player> temp_list;
-    std::cout << "Starting loop." << std::endl;
-    system("cls");
+
+    // Loop until tf2 process is found
+    // credit to https://github.com/extremeblackliu who i got this idea off
+    HWND h_pWindow = get_windowhandle();
+
+    // define message data
+    const char *statuscmd = "status";
+    COPYDATASTRUCT data;
+    data.cbData = strlen(statuscmd) + 1;
+    data.dwData = 0;
+    data.lpData = (void *)statuscmd;
+
     while (true)
     {
+        SendMessageA(h_pWindow, WM_COPYDATA, 0, (LPARAM)&data);
+        Sleep(100);
         system("cls");
         temp_list = get_ingame_playerlist(path);
         if (temp_list.size() > 1)
             player_list = temp_list;
             
-        std::cout << "Current list of cheaters in game:" << std::endl << std::endl;
+        std::cout << "Current list of players in game:" << std::endl << std::endl;
         for (player p : player_list)
         {
+            char* t;
+            cheater match;
             for (cheater c : cheater_list){
                 if (c.id3 == p.id3){
-                    string tag_name = (c.tag == 'C') ? "Cheater   " : ((c.tag == 'S') ? "Suspicious" : ((c.tag == 'W') ? "Watched   " : "Innocent  "));
-                    std::cout << tag_name << ": " << p.ign << " " << c.tag << std::endl;
+                    match = c;
+                    break;
                 }
             }
+            if (!match.id3.empty()){
+                t = (match.tag == 'C') ? "Cheater   " : 
+                    (match.tag == 'S') ? "Suspicious" : 
+                    (match.tag == 'W') ? "Watched   " : 
+                    "Innocent  ";
+            }
+            else {
+                t = "Unknown   ";
+            }
+            // print player info to console
+            
+            std::cout << t << " : " << p.ign << " - " << p.id3 << std::endl;
         }
 
         // clear console log file, sleep
