@@ -13,3 +13,6 @@ Wont work on linux or mac systems sorry.
 All rights reserved ®
 
 Report bugs to me on discord @birdkiller#5802
+
+TODO:
+Automatic TF2 install path retriever
