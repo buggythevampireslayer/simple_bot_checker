@@ -197,7 +197,8 @@ int main()
     set_color(color_option);
 
     // do autokick function
-    bool b_autokick = (autokick.substr(9, autokick.length() - 9) == "true") ? true : false;
+    string autokickoption = autokick.substr(9, autokick.length() - 9);
+    bool b_autokick = (autokickoption == "true") ? true : false;
 
     // read cheater_list.txt to get current cheaters
     std::cout << "Parsing cheater list..." << std::endl;
@@ -269,7 +270,7 @@ int main()
                 t = "          ";
             }
             if (b_autokick && match.tag == 'C'){
-                // autokick script
+                // autokick
                 kick_list.push_back(p->id);
             }
             string ign_padding = "";
