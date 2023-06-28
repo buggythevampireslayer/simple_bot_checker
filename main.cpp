@@ -156,26 +156,22 @@ vector<player> get_ingame_playerlist(string path)
 
 vector<int> kick_list;
 
-void kick_loop(){
-    if (kick_list.size() == 0)
+void kick_next(){
+    if (kick_list.size() != 0)
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
-    }
-    else
-    {
-        const char* kickcmd = ("callvote kick " + std::to_string(kick_list.at(0))).c_str();
+        const char *kickcmd = ("callvote kick " + std::to_string(kick_list.at(0))).c_str();
         COPYDATASTRUCT data;
         data.cbData = strlen(kickcmd) + 1;
         data.dwData = 0;
         data.lpData = (void *)kickcmd;
         SendMessageA(h_pWindow, WM_COPYDATA, 0, (LPARAM)&data);
         kick_list.erase(kick_list.begin());
-        std::this_thread::sleep_for(std::chrono::milliseconds(25000));
     }
 }
 
 int main()
 {
+    int i = 1;
     // read config file to get TF2 install path
     std::cout << "Reading config..." << std::endl;
     std::ifstream readconfig("config.cfg");
@@ -251,11 +247,12 @@ int main()
 
         system("cls");
         std::cout << "Current list of players in game:" << std::endl << std::endl;
-
+        vector<string> v_toprint;
         for (auto p = player_list.begin(); p != player_list.end(); p++)
         {
             string t;
             cheater match;
+            string sz_line;
             for (auto c = cheater_list.begin(); c != cheater_list.end(); c++){
                 if (c->id3 == p->id3){
                     match = *c;
@@ -284,7 +281,8 @@ int main()
                 ign_padding += " ";
             }
             // print player info to console
-            std::cout << t << " :   " << p->ign << ign_padding << " - " << p->id3 << id3_padding << " - " << p->id << std::endl;
+            sz_line = (t + " :   " + p->ign + ign_padding + " - " + p->id3 + id3_padding + " - " + std::to_string(p->id));
+            v_toprint.push_back(sz_line);
         }
 
         // clear console log file
@@ -293,10 +291,16 @@ int main()
         clr_file.open(path, std::ofstream::out | std::ofstream::trunc);
         clr_file.close();
 
-        // try to kick a player on another thread
-        std::thread t(kick_loop);
-        t.join();
+        for (string s : v_toprint)
+        {
+            std::cout << s << std::endl;
+        }
 
+        // try to kick a cheater
+        if (i % 6 == 0)
+            kick_next();
+
+        i++;
         // Changes this from 1000 to 4800 since it will be running status on its own now and it's unnecessary cpu usage
         Sleep(4800);
     }
