@@ -169,6 +169,7 @@ void kick_loop(){
         data.dwData = 0;
         data.lpData = (void *)kickcmd;
         SendMessageA(h_pWindow, WM_COPYDATA, 0, (LPARAM)&data);
+        kick_list.erase(kick_list.begin());
         std::this_thread::sleep_for(std::chrono::milliseconds(25000));
     }
 }
