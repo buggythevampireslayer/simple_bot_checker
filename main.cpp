@@ -5,12 +5,14 @@
 #include <Windows.h>
 #include <algorithm>
 #include <iomanip>
+#include <thread>
+#include <string.h>
 
 using std::string, std::vector;
 
 struct cheater { string id3; char tag; };
 struct player { int id; string ign; string id3; };
-
+HWND h_pWindow = nullptr;
 
 HWND get_windowhandle()
 {
@@ -152,17 +154,37 @@ vector<player> get_ingame_playerlist(string path)
     return pv;
 }
 
+vector<int> kick_list;
+
+void kick_loop(){
+    if (kick_list.size() == 0)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+    }
+    else
+    {
+        const char* kickcmd = ("callvote kick " + std::to_string(kick_list.at(0))).c_str();
+        COPYDATASTRUCT data;
+        data.cbData = strlen(kickcmd) + 1;
+        data.dwData = 0;
+        data.lpData = (void *)kickcmd;
+        SendMessageA(h_pWindow, WM_COPYDATA, 0, (LPARAM)&data);
+        std::this_thread::sleep_for(std::chrono::milliseconds(25000));
+    }
+}
+
 int main()
 {
     // read config file to get TF2 install path
     std::cout << "Reading config..." << std::endl;
     std::ifstream readconfig("config.cfg");
-    string path, bgoption, txtoption;
+    string path, bgoption, txtoption, autokick;
     getline(readconfig, path);
     path += "\\tf\\console.log";
 
     getline(readconfig, bgoption);
     getline(readconfig, txtoption);
+    getline(readconfig, autokick);
     readconfig.close();
     std::cout << "Done." << std::endl << std::endl;
 
@@ -177,6 +199,9 @@ int main()
     if (color_option == 0) color_option = 15;
     set_color(color_option);
 
+    // do autokick function
+    bool b_autokick = (autokick.substr(9, autokick.length() - 9) == "true") ? true : false;
+
     // read cheater_list.txt to get current cheaters
     std::cout << "Parsing cheater list..." << std::endl;
     vector<cheater> cheater_list = get_cheater_list("cheater_list.txt");
@@ -185,7 +210,7 @@ int main()
     // vector variables
     vector<player> player_list;
     vector<player> temp_list;
-
+    
     // Loop until tf2 process is found
     // credit to https://github.com/extremeblackliu who i got this idea off
     HWND h_pWindow = get_windowhandle();
@@ -209,6 +234,10 @@ int main()
 
     while (true)
     {
+        if (!IsWindow(h_pWindow)){
+            std::cout << "Lost TF2 window, attempting to locate it." << std::endl;
+            h_pWindow = get_windowhandle();
+        }
         SendMessageA(h_pWindow, WM_COPYDATA, 0, (LPARAM)&data);
         Sleep(200);
         
@@ -241,6 +270,10 @@ int main()
             else {
                 t = "          ";
             }
+            if (b_autokick && match.tag == 'C'){
+                // autokick script
+                kick_list.push_back(p->id);
+            }
             string ign_padding = "";
             string id3_padding = "";
             for (int i = 0; i < (18 - p->id3.length()); i++){
@@ -253,11 +286,15 @@ int main()
             std::cout << t << " :   " << p->ign << ign_padding << " - " << p->id3 << id3_padding << " - " << p->id << std::endl;
         }
 
-        // clear console log file, sleep
+        // clear console log file
         temp_list.clear();
         std::ofstream clr_file;
         clr_file.open(path, std::ofstream::out | std::ofstream::trunc);
         clr_file.close();
+
+        // try to kick a player on another thread
+        std::thread t(kick_loop);
+        t.join();
 
         // Changes this from 1000 to 4800 since it will be running status on its own now and it's unnecessary cpu usage
         Sleep(4800);
