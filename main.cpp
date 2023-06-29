@@ -154,24 +154,18 @@ vector<player> get_ingame_playerlist(string path)
     return pv;
 }
 
-vector<int> kick_list;
-
-void kick_next(){
-    if (kick_list.size() != 0)
-    {
-        const char *kickcmd = ("callvote kick " + std::to_string(kick_list.at(0))).c_str();
-        COPYDATASTRUCT data;
-        data.cbData = strlen(kickcmd) + 1;
-        data.dwData = 0;
-        data.lpData = (void *)kickcmd;
-        SendMessageA(h_pWindow, WM_COPYDATA, 0, (LPARAM)&data);
-        kick_list.erase(kick_list.begin());
-    }
+void try_kick(int id)
+{
+    const char *kickcmd = ("callvote kick " + std::to_string(id)).c_str();
+    COPYDATASTRUCT data;
+    data.cbData = strlen(kickcmd) + 1;
+    data.dwData = 0;
+    data.lpData = (void *)kickcmd;
+    SendMessageA(h_pWindow, WM_COPYDATA, 0, (LPARAM)&data);
 }
 
 int main()
 {
-    int i = 1;
     // read config file to get TF2 install path
     std::cout << "Reading config..." << std::endl;
     std::ifstream readconfig("config.cfg");
@@ -245,9 +239,7 @@ int main()
             sort(player_list.begin(), player_list.end(), [](const player &lv, const player &rv)
                  { return lv.id < rv.id; });
         }
-
-        system("cls");
-        std::cout << "Current list of players in game:" << std::endl << std::endl;
+        
         vector<string> v_toprint;
         for (auto p = player_list.begin(); p != player_list.end(); p++)
         {
@@ -269,9 +261,10 @@ int main()
             else {
                 t = "          ";
             }
+            
             if (b_autokick && match.tag == 'C'){
                 // autokick
-                kick_list.push_back(p->id);
+                try_kick(p->id);
             }
             string ign_padding = "";
             string id3_padding = "";
@@ -292,16 +285,13 @@ int main()
         clr_file.open(path, std::ofstream::out | std::ofstream::trunc);
         clr_file.close();
 
+        system("cls");
+        std::cout << "Current list of players in game:" << std::endl << std::endl;
         for (string s : v_toprint)
         {
             std::cout << s << std::endl;
         }
 
-        // try to kick a cheater
-        if (i % 6 == 0)
-            kick_next();
-
-        i++;
         // Changes this from 1000 to 4800 since it will be running status on its own now and it's unnecessary cpu usage
         Sleep(4800);
     }
